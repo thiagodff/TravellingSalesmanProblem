@@ -9,18 +9,27 @@ public class TravellingSalesmanProblem {
     public static void main(String[] args) {
         Heuristics graph = readArq(args[0]);
         int cidadeInicial = 0;
-        graph.iniciaGuloso(cidadeInicial);
+//        graph.initNearestNeighbor(cidadeInicial);
+        graph.init2OPT(cidadeInicial);
 
-        int[] caminho = graph.getVerticePai();
+        int[][] caminho = graph.getCaminho();
 
-        System.out.println("Vertice Pai:");
-        for (int i = 0; i < caminho.length; i++) {
-            System.out.print(caminho[i] + " ");
+        for(int i = 0; i < caminho[0].length; i++) {
+            for(int j = 0; j < caminho[0].length; j++) {
+                if (caminho[i][j] != 0)
+                    System.out.printf("%3d ", caminho[i][j]);
+            }
+            System.out.println("");
         }
-        System.out.println("");
+        System.out.println("\n");
+        int[] pai = graph.getVerticePai();
+        
+        for(int i = 0; i < caminho[0].length; i++) {
+            System.out.print(pai[i] + " ");
+        }
         
         int custoTotal = graph.getCustoTotal();
-        System.out.println("Melhor Custo: " + custoTotal);
+        System.out.println("\nMelhor Custo: " + custoTotal);
 
     }
     
