@@ -5,27 +5,16 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class TravellingSalesmanProblem {
-
+    
     public static void main(String[] args) {
         Heuristics graph = readArq(args[0]);
         int cidadeInicial = 0;
 //        graph.initNearestNeighbor(cidadeInicial);
-        graph.init2OPT(cidadeInicial);
 
-        int[][] caminho = graph.getCaminho();
+        int[] caminho = graph.init2OPT(cidadeInicial);
 
-        for(int i = 0; i < caminho[0].length; i++) {
-            for(int j = 0; j < caminho[0].length; j++) {
-                if (caminho[i][j] != 0)
-                    System.out.printf("%3d ", caminho[i][j]);
-            }
-            System.out.println("");
-        }
-        System.out.println("\n");
-        int[] pai = graph.getVerticePai();
-        
-        for(int i = 0; i < caminho[0].length; i++) {
-            System.out.print(pai[i] + " ");
+        for(int i = 0; i < caminho.length; i++) {
+            System.out.print(caminho[i] + " ");
         }
         
         int custoTotal = graph.getCustoTotal();

@@ -4,6 +4,7 @@ public class Heuristics extends Graphs {
 
     private final int vertices;    
     private final int[][] caminho;
+    private final int[] caminho2;
     private final int[] verticeConhecido;
     private final int[] verticePai;
     private int custoTotal;
@@ -15,6 +16,7 @@ public class Heuristics extends Graphs {
         verticePai = new int[vertices];
         custoTotal = 0;
         caminho = new int[vertices][vertices];
+        caminho2 = new int[vertices];
         
         for(int i = 0; i < vertices; i++) {
             for(int j = 0; j < vertices; j++) {
@@ -23,9 +25,10 @@ public class Heuristics extends Graphs {
         }
     }
 
-    private void NearestNeighbor(int origem, int verticeInicial) {
+    private void NearestNeighbor(int origem, int verticeInicial, int pos) {
         int peso = Integer.MAX_VALUE;
         int proxVertice = verticeInicial;
+        caminho2[pos] = verticeInicial;
         verticeConhecido[verticeInicial] = 1;
         for (int i = 0; i < vertices; i++) {
             if (peso > super.getPeso(verticeInicial, i) && i != verticeInicial && verticeConhecido[i] == 0) {
@@ -37,13 +40,13 @@ public class Heuristics extends Graphs {
         if (proxVertice != verticeInicial) {
             verticePai[proxVertice] = verticeInicial;
             custoTotal += super.getPeso(verticeInicial, proxVertice);
-            caminho[verticeInicial][proxVertice] = super.getPeso(verticeInicial, proxVertice);            
-            caminho[proxVertice][verticeInicial] = super.getPeso(verticeInicial, proxVertice);
-            NearestNeighbor(origem, proxVertice);
+//            caminho[verticeInicial][proxVertice] = super.getPeso(verticeInicial, proxVertice);            
+//            caminho[proxVertice][verticeInicial] = super.getPeso(verticeInicial, proxVertice);
+            NearestNeighbor(origem, proxVertice, ++pos);
         } else {
             custoTotal += super.getPeso(verticeInicial, origem);
-            caminho[verticeInicial][origem] = super.getPeso(verticeInicial, origem);            
-            caminho[origem][verticeInicial] = super.getPeso(verticeInicial, origem);
+//            caminho[verticeInicial][origem] = super.getPeso(verticeInicial, origem);            
+//            caminho[origem][verticeInicial] = super.getPeso(verticeInicial, origem);
             verticePai[origem] = verticeInicial;
         }
     }
@@ -55,47 +58,55 @@ public class Heuristics extends Graphs {
         }
         custoTotal = 0;
 
-        NearestNeighbor(cidadeInicial, cidadeInicial);
+        NearestNeighbor(cidadeInicial, cidadeInicial, 0);
     }
     
-    // Refaz o vetor verticePai a partir da matrizAdj(caminhos)
-    private void refazPai(int cidadeInicial){
-        for(int i = 0; i < verticePai.length; i++) {
-            int cont = 0;
-            for(int j = 0; j < i; j++) {
-                if (caminho[i][j] != 0) {
-                    if (cont == 0) {
-                        verticePai[i] = j;
-                    }else if (cont == 1){
-                        verticePai[verticePai[i]] = i;
-                        verticePai[i] = j;
-                    }
-                    cont++;
-                }
-            }
-        }
-    }
+    
+//    private void h2OPT(int cidadeInicial){
+//        for(int i = 0; i < verticePai.length; i++) {
+//            for(int j = 0; j < i; j++) {
+//                if (caminho[i][j] != 0) { // encontra o primeiro vertice para tentar a troca
+//                    for(int k = i+1; k < verticePai.length; k++) {
+//                        for(int m = 0; m < k; m++) {
+//                            if (caminho[k][m] != 0 && m != i && m != j && k != j) {
+//                                int novoPeso = ((super.getPeso(i, j) + super.getPeso(k, m)) - (super.getPeso(i, k) + super.getPeso(j, m)));
+//                                if (novoPeso > 0) {
+//                                    caminho[i][j] = 0;
+//                                    caminho[j][i] = 0;
+//                                    caminho[k][m] = 0;
+//                                    caminho[m][k] = 0;
+//                                    caminho[i][k] = super.getPeso(i, k);
+//                                    caminho[k][i] = super.getPeso(i, k);
+//                                    caminho[j][m] = super.getPeso(j, m);
+//                                    caminho[m][j] = super.getPeso(j, m);
+//                                    custoTotal -= novoPeso;
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }        
+//    }
     
     private void h2OPT(int cidadeInicial){
         for(int i = 0; i < verticePai.length; i++) {
-            for(int j = 0; j < i; j++) {
-                if (caminho[i][j] != 0) { // encontra o primeiro vertice para tentar a troca
-                    for(int k = i+1; k < verticePai.length; k++) {
-                        for(int m = 0; m < k; m++) {
-                            if (caminho[k][m] != 0 && m != i && m != j && k != j) {
-                                int novoPeso = ((super.getPeso(i, j) + super.getPeso(k, m)) - (super.getPeso(i, k) + super.getPeso(j, m)));
-                                if (novoPeso > 0) {
-                                    caminho[i][j] = 0;
-                                    caminho[j][i] = 0;
-                                    caminho[k][m] = 0;
-                                    caminho[m][k] = 0;
-                                    caminho[i][k] = super.getPeso(i, k);
-                                    caminho[k][i] = super.getPeso(i, k);
-                                    caminho[j][m] = super.getPeso(j, m);
-                                    caminho[m][j] = super.getPeso(j, m);
-                                    custoTotal -= novoPeso;
-                                }
-                            }
+            for(int j = i+2; j < verticePai.length-1; j++) {
+                if (caminho2[i] != caminho2[j] && caminho2[i] != caminho2[j+1] && caminho2[i+1] != caminho2[j] && caminho2[i+1] != caminho2[j+1]) {
+                    int novoPeso = ((super.getPeso(caminho2[i], caminho2[i+1]) + super.getPeso(caminho2[j], caminho2[j+1])) - (super.getPeso(caminho2[i], caminho2[j]) + super.getPeso(caminho2[i+1], caminho2[j+1])));
+                    // verifica se o peso apos a troca e vantajoso
+                    if (novoPeso > 0) {
+                        int aux = caminho2[i+1];
+                        caminho2[i+1] = caminho2[j];
+                        caminho2[j] = aux;
+                        custoTotal -= novoPeso;
+                        // arruma o vetor caminho apos a troca
+                        int m = j-1;
+                        for (int k = i+2; k != m && k < m ; k++) {
+                            int aux2 = caminho2[k];
+                            caminho2[k] = caminho2[m];
+                            caminho2[m] = aux2;
+                            m--;
                         }
                     }
                 }
@@ -103,36 +114,17 @@ public class Heuristics extends Graphs {
         }        
     }
     
-//              if (i != verticePai[j] && verticePai[i] != j) {
-//                    int peso2 = super.getPeso(j, verticePai[j]);
-//                    if ((peso1 + peso2 - super.getPeso(i, j) - super.getPeso(verticePai[i], verticePai[j])) > 0) {
-//                        // se o novo peso da troca for menor que o anterior
-//                        // zera os vertices anteriores
-//                        caminho[i][verticePai[i]] = 0;
-//                        caminho[verticePai[i]][i] = 0;
-//                        caminho[j][verticePai[j]] = 0;
-//                        caminho[verticePai[j]][j] = 0;
-//                        // e coloca os novos vertices
-//                        caminho[i][j] = super.getPeso(i, j);
-//                        caminho[j][i] = super.getPeso(i, j);
-//                        caminho[verticePai[i]][verticePai[j]] = super.getPeso(verticePai[i], verticePai[j]);
-//                        caminho[verticePai[j]][verticePai[i]] = super.getPeso(verticePai[i], verticePai[j]);
-//                        // refaz o vertice pai a partir das novas conexoes da matriz de caminho
-//                        refazPai(cidadeInicial);
-//                        // atualiza o custo total
-//                        custoTotal = super.getPeso(i, j) + super.getPeso(verticePai[i], verticePai[j]) - peso1 - peso2;
-//                    }
-//                }
-    
-    public void init2OPT(int cidadeInicial) {
+    public int[] init2OPT(int cidadeInicial) {
         for (int i = 0; i < vertices; i++) {
             verticeConhecido[i] = 0;
             verticePai[i] = -1;
         }
         custoTotal = 0;
 
-        NearestNeighbor(cidadeInicial, cidadeInicial);
+        NearestNeighbor(cidadeInicial, cidadeInicial, 0);
         h2OPT(cidadeInicial);
+        
+        return this.getCaminho2();
     }
 
     public int[] getVerticePai() {
@@ -141,6 +133,10 @@ public class Heuristics extends Graphs {
     
     public int getCustoTotal() {
         return custoTotal;
+    }
+
+    public int[] getCaminho2() {
+        return caminho2;
     }
     
     public int[][] getCaminho() {
