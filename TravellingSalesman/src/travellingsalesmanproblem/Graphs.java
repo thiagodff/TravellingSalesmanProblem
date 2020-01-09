@@ -16,6 +16,10 @@ public class Graphs {
             }
         }
     }
+
+    public int[][] getMatrizAdjacencia() {
+        return matrizAdjacencia;
+    }
     
     public void insereAresta(int vertice1, int vertice2, int peso) {
         matrizAdjacencia[vertice1][vertice2] = peso;

@@ -9,16 +9,16 @@ public class TravellingSalesmanProblem {
     public static void main(String[] args) {
         Heuristics graph = readArq(args[0]);
         int cidadeInicial = 0;
-//        graph.initNearestNeighbor(cidadeInicial);
+        int[] caminho = graph.initNearestNeighbor(cidadeInicial, graph.getMatrizAdjacencia());
 
-        int[] caminho = graph.init2OPT(cidadeInicial);
-
+        caminho = graph.init2OPT(cidadeInicial, graph.getMatrizAdjacencia(), caminho);
+        
         for(int i = 0; i < caminho.length; i++) {
             System.out.print(caminho[i] + " ");
         }
         
         int custoTotal = graph.getCustoTotal();
-        System.out.println("\nMelhor Custo: " + custoTotal);
+        System.out.println("\nMelhor Custo: " + custoTotal + " ---- " + graph.getCustoTotalVerifica());
 
     }
     
